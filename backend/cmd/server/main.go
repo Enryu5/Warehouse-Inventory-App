@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/yourusername/warehouse-backend/internal/config"
-	delivery "github.com/yourusername/warehouse-backend/internal/delivery/http"
+	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/config"
+	delivery "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/delivery/http"
 )
 
 func main() {
