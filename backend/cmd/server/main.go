@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/config"
 	delivery "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/delivery/http"
@@ -17,6 +18,14 @@ func main() {
 
 	// Initialize database connection
 	db := database.InitPostgres()
+
+	// Run migrations only if --migrate flag is passed
+	if len(os.Args) > 1 && os.Args[1] == "--migrate" {
+		if err := database.Migrate(db); err != nil {
+			log.Fatalf("Database migration failed: %v", err)
+		}
+		return // Exit after migration
+	}
 
 	// Initialize repositories
 	warehouseRepo := persistence.NewWarehouseRepository(db)
