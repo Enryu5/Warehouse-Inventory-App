@@ -7,6 +7,7 @@ import (
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/domain"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/usecase"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AdminHandler struct {
@@ -36,6 +37,16 @@ func (h *AdminHandler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Hash the password before saving
+	hashed, err := bcrypt.GenerateFromPassword([]byte(admin.Hashed_Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
+	admin.Hashed_Password = string(hashed)
+	admin.Hashed_Password = "" // Optional: clear plain password
+
 	if err := h.Usecase.Create(&admin); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

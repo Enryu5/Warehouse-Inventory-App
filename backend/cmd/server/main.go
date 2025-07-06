@@ -45,6 +45,7 @@ func main() {
 		itemUC,
 		adminUC,
 		stockUC,
+		db,
 	)
 
 	// Add CORS middleware if needed

@@ -1,8 +1,10 @@
 package http
 
 import (
+	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/middleware"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/usecase"
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 func NewRouter(
@@ -10,6 +12,7 @@ func NewRouter(
 	itemUC usecase.ItemUsecase,
 	adminUC usecase.AdminUsecase,
 	stockUC usecase.StockUsecase,
+	db *gorm.DB,
 ) *mux.Router {
 	// Create a new router
 	router := mux.NewRouter()
@@ -17,8 +20,11 @@ func NewRouter(
 	// Create API subrouter with common prefix
 	apiRouter := router.PathPrefix("/api").Subrouter()
 
+	// Initialize middlewares
+	warehouseMW := middleware.NewWarehouseMiddleware(db)
+
 	// Set up all routes
-	setupWarehouseRoutes(apiRouter, warehouseUC)
+	setupWarehouseRoutes(apiRouter, warehouseUC, warehouseMW)
 	setupItemRoutes(apiRouter, itemUC)
 	setupAdminRoutes(apiRouter, adminUC)
 	setupStockRoutes(apiRouter, stockUC)
@@ -26,8 +32,17 @@ func NewRouter(
 	return router
 }
 
-func setupWarehouseRoutes(router *mux.Router, warehouseUC usecase.WarehouseUsecase) {
-	NewWarehouseHandler(router.PathPrefix("/warehouses").Subrouter(), warehouseUC)
+func setupWarehouseRoutes(router *mux.Router, warehouseUC usecase.WarehouseUsecase, warehouseMW *middleware.WarehouseMiddleware) {
+	// Create a subrouter for warehouse routes
+	warehouseRouter := router.PathPrefix("/warehouses").Subrouter()
+
+	// Apply JWT middleware to all warehouse routes
+	warehouseRouter.Use(middleware.JWTMiddleware)
+	// Apply warehouse authorization middleware for write operations
+	warehouseRouter.Use(warehouseMW.WarehouseWriteAuthMiddleware)
+
+	// Set up warehouse routes
+	NewWarehouseHandler(warehouseRouter, warehouseUC)
 }
 
 func setupItemRoutes(router *mux.Router, itemUC usecase.ItemUsecase) {
