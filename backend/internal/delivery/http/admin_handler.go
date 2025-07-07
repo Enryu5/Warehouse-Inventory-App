@@ -45,7 +45,6 @@ func (h *AdminHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	admin.Hashed_Password = string(hashed)
-	admin.Hashed_Password = "" // Optional: clear plain password
 
 	if err := h.Usecase.Create(&admin); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

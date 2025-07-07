@@ -3,12 +3,13 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("your_secret_key")
+var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 type contextKey string
 

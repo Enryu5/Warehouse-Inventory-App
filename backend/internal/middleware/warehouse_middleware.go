@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -21,26 +20,11 @@ func NewWarehouseMiddleware(db *gorm.DB) *WarehouseMiddleware {
 
 // getWarehouseIDFromRequest extracts warehouse_id from URL params or request body
 func (wm *WarehouseMiddleware) getWarehouseIDFromRequest(r *http.Request) (int, error) {
-	// First try to get from URL vars
 	vars := mux.Vars(r)
 	if warehouseID, exists := vars["id"]; exists {
 		return strconv.Atoi(warehouseID)
 	}
-
-	// If not in URL, try request body for POST/PUT requests
-	if r.Method == http.MethodPost || r.Method == http.MethodPut {
-		var requestBody struct {
-			WarehouseID int `json:"warehouse_id"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-			return 0, err
-		}
-		// Reset the body for the next handler
-		r.Body.Close()
-		return requestBody.WarehouseID, nil
-	}
-
-	return 0, fmt.Errorf("warehouse_id not found in request")
+	return 0, fmt.Errorf("warehouse_id not found in URL")
 }
 
 // WarehouseWriteAuthMiddleware checks if the admin has write access to the warehouse
