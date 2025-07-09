@@ -20,13 +20,16 @@ func NewRouter(
 	// Create API subrouter with common prefix
 	apiRouter := router.PathPrefix("/api").Subrouter()
 
+	// Set up login route before applying JWT middleware (so /login is unprotected)
+	setupAuthRoutes(apiRouter, adminUC)
+
+	// Apply JWT middleware to all other /api routes
+	apiRouter.Use(middleware.JWTMiddleware)
+
 	// Initialize middlewares
 	warehouseMW := middleware.NewWarehouseMiddleware(db)
 
-	// Set up auth routes first (no middleware)
-	setupAuthRoutes(apiRouter, adminUC)
-
-	// Set up all routes
+	// Set up all routes under /api
 	setupWarehouseRoutes(apiRouter, warehouseUC, warehouseMW)
 	setupItemRoutes(apiRouter, itemUC)
 	setupAdminRoutes(apiRouter, adminUC)
@@ -44,8 +47,6 @@ func setupWarehouseRoutes(router *mux.Router, warehouseUC usecase.WarehouseUseca
 	// Create a subrouter for warehouse routes
 	warehouseRouter := router.PathPrefix("/warehouses").Subrouter()
 
-	// Apply JWT middleware to all warehouse routes
-	warehouseRouter.Use(middleware.JWTMiddleware)
 	// Apply warehouse authorization middleware for write operations
 	warehouseRouter.Use(warehouseMW.WarehouseWriteAuthMiddleware)
 
@@ -59,7 +60,6 @@ func setupItemRoutes(router *mux.Router, itemUC usecase.ItemUsecase) {
 
 func setupAdminRoutes(router *mux.Router, adminUC usecase.AdminUsecase) {
 	adminRouter := router.PathPrefix("/admins").Subrouter()
-	adminRouter.Use(middleware.JWTMiddleware)
 	NewAdminHandler(adminRouter, adminUC)
 }
 

@@ -24,6 +24,9 @@ func (wm *WarehouseMiddleware) getWarehouseIDFromRequest(r *http.Request) (int, 
 	if warehouseID, exists := vars["id"]; exists {
 		return strconv.Atoi(warehouseID)
 	}
+	if warehouseID, exists := vars["warehouse_id"]; exists {
+		return strconv.Atoi(warehouseID)
+	}
 	return 0, fmt.Errorf("warehouse_id not found in URL")
 }
 
@@ -50,10 +53,16 @@ func (wm *WarehouseMiddleware) WarehouseWriteAuthMiddleware(next http.Handler) h
 			return
 		}
 
-		// Check if admin is authorized for this warehouse
+		// Check if warehouse exists
 		var warehouse domain.Warehouse
-		result := wm.DB.Where("warehouse_id = ? AND admin_id = ?", warehouseID, adminID).First(&warehouse)
+		result := wm.DB.First(&warehouse, warehouseID)
 		if result.Error != nil {
+			http.Error(w, "Warehouse not found", http.StatusNotFound)
+			return
+		}
+
+		// Check if admin is authorized for this warehouse
+		if warehouse.AdminID != adminID {
 			http.Error(w, "Forbidden: you don't have write access to this warehouse", http.StatusForbidden)
 			return
 		}

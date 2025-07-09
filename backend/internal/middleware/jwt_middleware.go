@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -9,7 +10,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+var jwtKey []byte
+
+func init() {
+	secret := os.Getenv("JWT_SECRET_KEY")
+	if secret == "" {
+		log.Fatal("JWT_SECRET_KEY is not set in environment variables")
+	}
+	jwtKey = []byte(secret)
+}
 
 type contextKey string
 
@@ -41,13 +50,19 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		adminID, ok := claims["admin_id"].(float64)
-		if !ok {
+		// Accept both float64 and int admin_id (robust type assertion)
+		var adminID int
+		switch v := claims["admin_id"].(type) {
+		case float64:
+			adminID = int(v)
+		case int:
+			adminID = v
+		default:
 			http.Error(w, "Invalid admin_id in token", http.StatusUnauthorized)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), AdminIDKey, int(adminID))
+		ctx := context.WithValue(r.Context(), AdminIDKey, adminID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
