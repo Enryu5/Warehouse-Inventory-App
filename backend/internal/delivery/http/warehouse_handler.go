@@ -17,11 +17,11 @@ type WarehouseHandler struct {
 func NewWarehouseHandler(r *mux.Router, uc usecase.WarehouseUsecase) {
 	handler := &WarehouseHandler{Usecase: uc}
 
-	r.HandleFunc("/warehouses", handler.GetAll).Methods("GET")
-	r.HandleFunc("/warehouses/{id:[0-9]+}", handler.GetByID).Methods("GET")
-	r.HandleFunc("/warehouses", handler.Create).Methods("POST")
-	r.HandleFunc("/warehouses/{id:[0-9]+}", handler.Update).Methods("PUT")
-	r.HandleFunc("/warehouses/{id:[0-9]+}", handler.Delete).Methods("DELETE")
+	r.HandleFunc("/", handler.GetAll).Methods("GET")
+	r.HandleFunc("/{id:[0-9]+}", handler.GetByID).Methods("GET")
+	r.HandleFunc("/", handler.Create).Methods("POST")
+	r.HandleFunc("/{id:[0-9]+}", handler.Update).Methods("PUT")
+	r.HandleFunc("/{id:[0-9]+}", handler.Delete).Methods("DELETE")
 }
 
 func (h *WarehouseHandler) GetAll(w http.ResponseWriter, r *http.Request) {

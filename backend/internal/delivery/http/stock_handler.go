@@ -17,10 +17,10 @@ type StockHandler struct {
 func NewStockHandler(r *mux.Router, uc usecase.StockUsecase) {
 	handler := &StockHandler{Usecase: uc}
 
-	r.HandleFunc("/stocks/warehouse/{warehouse_id:[0-9]+}", handler.GetByWarehouse).Methods("GET")
-	r.HandleFunc("/stocks/item/{item_id:[0-9]+}", handler.GetByItem).Methods("GET")
-	r.HandleFunc("/stocks", handler.Upsert).Methods("POST", "PUT")
-	r.HandleFunc("/stocks/item/{item_id:[0-9]+}/warehouse/{warehouse_id:[0-9]+}", handler.DeleteByItemAndWarehouse).Methods("DELETE")
+	r.HandleFunc("/warehouse/{warehouse_id:[0-9]+}", handler.GetByWarehouse).Methods("GET")
+	r.HandleFunc("/item/{item_id:[0-9]+}", handler.GetByItem).Methods("GET")
+	r.HandleFunc("/", handler.Upsert).Methods("POST", "PUT")
+	r.HandleFunc("/item/{item_id:[0-9]+}/warehouse/{warehouse_id:[0-9]+}", handler.DeleteByItemAndWarehouse).Methods("DELETE")
 }
 
 func (h *StockHandler) GetByWarehouse(w http.ResponseWriter, r *http.Request) {

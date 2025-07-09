@@ -12,7 +12,7 @@ import (
 
 var jwtKey []byte
 
-func init() {
+func SetupJWTKey() {
 	secret := os.Getenv("JWT_SECRET_KEY")
 	if secret == "" {
 		log.Fatal("JWT_SECRET_KEY is not set in environment variables")

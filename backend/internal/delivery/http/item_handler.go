@@ -17,11 +17,11 @@ type ItemHandler struct {
 func NewItemHandler(r *mux.Router, uc usecase.ItemUsecase) {
 	handler := &ItemHandler{Usecase: uc}
 
-	r.HandleFunc("/items", handler.GetAll).Methods("GET")
-	r.HandleFunc("/items/{id:[0-9]+}", handler.GetByID).Methods("GET")
-	r.HandleFunc("/items", handler.Create).Methods("POST")
-	r.HandleFunc("/items/{id:[0-9]+}", handler.Update).Methods("PUT")
-	r.HandleFunc("/items/{id:[0-9]+}", handler.Delete).Methods("DELETE")
+	r.HandleFunc("/", handler.GetAll).Methods("GET")
+	r.HandleFunc("/{id:[0-9]+}", handler.GetByID).Methods("GET")
+	r.HandleFunc("/", handler.Create).Methods("POST")
+	r.HandleFunc("/{id:[0-9]+}", handler.Update).Methods("PUT")
+	r.HandleFunc("/{id:[0-9]+}", handler.Delete).Methods("DELETE")
 }
 
 func (h *ItemHandler) GetAll(w http.ResponseWriter, r *http.Request) {

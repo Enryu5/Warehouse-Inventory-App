@@ -55,7 +55,7 @@ func main() {
 	handler := addCorsMiddleware(router)
 
 	// Start HTTP server
-	serverAddr := ":8080"
+	serverAddr := "0.0.0.0:8080"
 	log.Printf("Server is running on %s...\n", serverAddr)
 	if err := http.ListenAndServe(serverAddr, handler); err != nil {
 		log.Fatalf("failed to start server: %v", err)

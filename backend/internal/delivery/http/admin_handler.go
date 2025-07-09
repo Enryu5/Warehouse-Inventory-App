@@ -17,8 +17,8 @@ type AdminHandler struct {
 func NewAdminHandler(r *mux.Router, uc usecase.AdminUsecase) {
 	handler := &AdminHandler{Usecase: uc}
 
-	r.HandleFunc("/admins/{username}", handler.GetByUsername).Methods("GET")
-	r.HandleFunc("/admins", handler.Create).Methods("POST")
+	r.HandleFunc("/{username}", handler.GetByUsername).Methods("GET")
+	r.HandleFunc("/", handler.Create).Methods("POST")
 }
 
 func (h *AdminHandler) GetByUsername(w http.ResponseWriter, r *http.Request) {
