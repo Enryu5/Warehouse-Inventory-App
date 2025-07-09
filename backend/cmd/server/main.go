@@ -8,6 +8,7 @@ import (
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/config"
 	delivery "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/delivery/http"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/infrastructure/database"
+	firebaseUtil "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/infrastructure/firebase"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/infrastructure/persistence"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/usecase"
 )
@@ -18,6 +19,8 @@ func main() {
 
 	// Initialize database connection
 	db := database.InitPostgres()
+
+	firebaseUtil.InitFirebase()
 
 	// Run migrations only if --migrate flag is passed
 	if len(os.Args) > 1 && os.Args[1] == "--migrate" {

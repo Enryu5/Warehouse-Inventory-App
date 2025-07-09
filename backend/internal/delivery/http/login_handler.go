@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/usecase"
@@ -14,7 +15,7 @@ type AuthHandler struct {
 	AdminUsecase usecase.AdminUsecase
 }
 
-var jwtKey = []byte("your_secret_key")
+var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 func generateJWT(adminID int) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)

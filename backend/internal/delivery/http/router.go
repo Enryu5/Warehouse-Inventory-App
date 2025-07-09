@@ -23,6 +23,9 @@ func NewRouter(
 	// Initialize middlewares
 	warehouseMW := middleware.NewWarehouseMiddleware(db)
 
+	// Set up auth routes first (no middleware)
+	setupAuthRoutes(apiRouter, adminUC)
+
 	// Set up all routes
 	setupWarehouseRoutes(apiRouter, warehouseUC, warehouseMW)
 	setupItemRoutes(apiRouter, itemUC)
@@ -30,6 +33,11 @@ func NewRouter(
 	setupStockRoutes(apiRouter, stockUC)
 
 	return router
+}
+
+func setupAuthRoutes(router *mux.Router, adminUC usecase.AdminUsecase) {
+	authHandler := &AuthHandler{AdminUsecase: adminUC}
+	router.HandleFunc("/login", authHandler.Login).Methods("POST")
 }
 
 func setupWarehouseRoutes(router *mux.Router, warehouseUC usecase.WarehouseUsecase, warehouseMW *middleware.WarehouseMiddleware) {
@@ -50,7 +58,9 @@ func setupItemRoutes(router *mux.Router, itemUC usecase.ItemUsecase) {
 }
 
 func setupAdminRoutes(router *mux.Router, adminUC usecase.AdminUsecase) {
-	NewAdminHandler(router.PathPrefix("/admins").Subrouter(), adminUC)
+	adminRouter := router.PathPrefix("/admins").Subrouter()
+	adminRouter.Use(middleware.JWTMiddleware)
+	NewAdminHandler(adminRouter, adminUC)
 }
 
 func setupStockRoutes(router *mux.Router, stockUC usecase.StockUsecase) {

@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/domain"
+	firebaseSync "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/infrastructure/firebase"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/repository"
 	"gorm.io/gorm"
 )
@@ -24,5 +25,8 @@ func (r *adminRepository) GetByUsername(username string) (*domain.Admin, error) 
 }
 
 func (r *adminRepository) Create(admin *domain.Admin) error {
-	return r.db.Create(admin).Error
+	if err := r.db.Create(admin).Error; err != nil {
+		return err
+	}
+	return firebaseSync.SyncAdminToFirebase(admin)
 }

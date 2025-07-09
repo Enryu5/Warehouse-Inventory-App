@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/domain"
+	firebaseSync "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/infrastructure/firebase"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/repository"
 	"gorm.io/gorm"
 )
@@ -27,17 +28,15 @@ func (r *stockRepository) GetByItem(itemID int) ([]domain.Stock, error) {
 }
 
 func (r *stockRepository) Upsert(stock *domain.Stock) error {
-	// This implements "upsert" (insert or update) logic
-	return r.db.Save(stock).Error
-	// Alternative implementation if you need more control:
-	// var existing domain.Stock
-	// err := r.db.Where("item_id = ? AND warehouse_id = ?", stock.ItemID, stock.WarehouseID).First(&existing).Error
-	// if err == gorm.ErrRecordNotFound {
-	//     return r.db.Create(stock).Error
-	// }
-	// return r.db.Model(&existing).Updates(stock).Error
+	if err := r.db.Save(stock).Error; err != nil {
+		return err
+	}
+	return firebaseSync.SyncStockToFirebase(stock)
 }
 
 func (r *stockRepository) DeleteByItemAndWarehouse(itemID, warehouseID int) error {
-	return r.db.Where("item_id = ? AND warehouse_id = ?", itemID, warehouseID).Delete(&domain.Stock{}).Error
+	if err := r.db.Where("item_id = ? AND warehouse_id = ?", itemID, warehouseID).Delete(&domain.Stock{}).Error; err != nil {
+		return err
+	}
+	return firebaseSync.DeleteStockFromFirebase(warehouseID, itemID)
 }

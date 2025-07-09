@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/domain"
+	firebaseSync "github.com/Enryu5/Warehouse-Inventory-App/backend/internal/infrastructure/firebase"
 	"github.com/Enryu5/Warehouse-Inventory-App/backend/internal/repository"
 	"gorm.io/gorm"
 )
@@ -30,13 +31,22 @@ func (r *itemRepository) GetByID(id int) (*domain.Item, error) {
 }
 
 func (r *itemRepository) Create(item *domain.Item) error {
-	return r.db.Create(item).Error
+	if err := r.db.Create(item).Error; err != nil {
+		return err
+	}
+	return firebaseSync.SyncItemToFirebase(item)
 }
 
 func (r *itemRepository) Update(item *domain.Item) error {
-	return r.db.Save(item).Error
+	if err := r.db.Save(item).Error; err != nil {
+		return err
+	}
+	return firebaseSync.SyncItemToFirebase(item)
 }
 
 func (r *itemRepository) Delete(id int) error {
-	return r.db.Delete(&domain.Item{}, id).Error
+	if err := r.db.Delete(&domain.Item{}, id).Error; err != nil {
+		return err
+	}
+	return firebaseSync.DeleteItemFromFirebase(id)
 }
